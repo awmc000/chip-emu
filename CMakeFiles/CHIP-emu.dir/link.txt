@@ -1,0 +1,1 @@
+/usr/bin/c++ "CMakeFiles/CHIP-emu.dir/src/main.cpp.o" -o CHIP-emu

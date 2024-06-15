@@ -1,0 +1,3 @@
+/home/alex/Programming/C++/chip-emu/CMakeFiles/chipemu.dir
+/home/alex/Programming/C++/chip-emu/CMakeFiles/edit_cache.dir
+/home/alex/Programming/C++/chip-emu/CMakeFiles/rebuild_cache.dir
