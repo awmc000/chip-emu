@@ -63,7 +63,7 @@ void emulate(SDL_Window * window, SDL_Surface * surface) {
 	// Dump ram contents after load
 	// sys->dumpState();
 
-	// Run 100 cycles then dump again
+	// Run some cycles then dump again
 	for (int i = 0; i < 400; i++) {
 		sys->cycle();
 	};

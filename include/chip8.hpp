@@ -38,7 +38,7 @@ private:
     void opSetIndex(word NNN);
     void opDraw(byte X, byte Y, byte N);
 public:
-    // Display buffer: displayBuffer[x + (height * y)] = T / F
+    // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
     bool draw;
     bool sound;
