@@ -1,4 +1,5 @@
 #include "chip8.hpp"
+#include <iostream>
 
 word combine(byte leftByte, byte rightByte) {
     return ((leftByte << 8) | rightByte);
@@ -65,6 +66,9 @@ void Chip8::execute(word opcode) {
 		// 	break;
         // case 0xF000:
 		// 	break;
+        default:
+            std::cerr << "Unsupported instruction" << opcode << std::endl;
+            break;
     }
 }
 
@@ -124,7 +128,7 @@ void Chip8::opDraw(byte X, byte Y, byte N)
         }
         xCoord -= 7;
         yCoord++;
-        
+
         if (yCoord == CHIP8_SCREEN_HEIGHT) {
             break;
         }
