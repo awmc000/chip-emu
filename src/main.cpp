@@ -21,6 +21,32 @@ byte * loadFileBuf(const std::string &filename) {
 	return fileBuf;
 }
 
+void showChipDisplay(Chip8 * sys, SDL_Surface * surface, SDL_Rect pixels[32][64]) {
+	if (sys->draw) {
+		sys->draw = false;
+
+		for (int y = 0; y < CHIP8_SCREEN_HEIGHT; y++) {
+			for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
+				byte draw = sys->displayBuffer[y][x];
+
+				if (draw == 0) {
+					SDL_FillRect(surface,
+						&pixels[y][x],
+						SDL_MapRGB(surface->format, 0x00, 0x00, 0x00)
+					);
+					std::cout << "white pix" << std::endl;
+				} else {
+					SDL_FillRect(surface,
+						&pixels[y][x],
+						SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF)
+						);
+					std::cout << "black pix" << std::endl;
+				}
+			}
+		}
+	}
+}
+
 void emulate(SDL_Window * window, SDL_Surface * surface) {
 	SDL_UpdateWindowSurface(window);
 
@@ -32,68 +58,58 @@ void emulate(SDL_Window * window, SDL_Surface * surface) {
 	Chip8 * sys = new Chip8();
 	SDL_Rect pixels[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
 
-	sys->load(loadFileBuf("IBM Logo.ch8"));
+	sys->load(loadFileBuf("IBMLogo.ch8"));
 	
-	int pixLength = 10;
+	// Dump ram contents after load
+	// sys->dumpState();
+
+	// Run 100 cycles then dump again
+	for (int i = 0; i < 400; i++) {
+		sys->cycle();
+	};
+
+	sys->dumpState();
+
+	// int pixLength = 10;
 	
-	for (int y = 0; y < CHIP8_SCREEN_HEIGHT; y++) {
-		for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
-			pixels[y][x] = {x, y, pixLength, pixLength};
-		}
-	}
+	// // Set up pixel rectangles: 64x32 10x10px rectangles.
+	// for (int y = 0; y < CHIP8_SCREEN_HEIGHT; y++) {
+	// 	for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
+	// 		pixels[y][x] = {x, y, pixLength, pixLength};
+	// 	}
+	// }
 
-	while (running) {
-		while (SDL_PollEvent(&e)) {
-			// Check for quit event
-			if (e.type == SDL_QUIT) {
-				running = false;
-			}
+	// while (running) {
+	// 	while (SDL_PollEvent(&e)) {
+	// 		// Check for quit event
+	// 		if (e.type == SDL_QUIT) {
+	// 			running = false;
+	// 		}
 
-			// Check time
-			now = clock();
-			// If a 700th of a second has passed, run next cycle on Chip8
-			// Dividing clock ticks per second by 1000 gives clock ticks per millisecond.
-			// Cycle the Chip8 if 2 ms worth of ticks have passed.
-			if (1) {
-				std::cout << "draw" << std::endl;
-				last = now;
+	// 		// Check time
+	// 		now = clock();
 
-				sys->cycle();
+	// 		// If a 700th of a second has passed, run next cycle on Chip8
+	// 		// Dividing clock ticks per second by 1000 gives clock ticks per millisecond.
+	// 		// Cycle the Chip8 if 2 ms worth of ticks have passed.
+	// 		if (1) {
+	// 			last = now;
 
-				// If the sound flag is set, play a sound then unset it
-				if (sys->sound) {
-					// TODO: Play sound
-					sys->sound = false;
-				}
+	// 			sys->cycle();
+
+	// 			// If the sound flag is set, play a sound then unset it
+	// 			if (sys->sound) {
+	// 				// TODO: Play sound
+	// 				sys->sound = false;
+	// 			}
 				
-				// If the draw flag is set, draw, then unset it
-				if (sys->draw) {
-					sys->draw = false;
+	// 			// If the draw flag is set, draw, then unset it
+	// 			showChipDisplay(sys, surface, pixels);
 
-					for (int y = 0; y < CHIP8_SCREEN_HEIGHT; y++) {
-						for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
-							byte draw = sys->displayBuffer[y][x];
-
-							if (draw == 1) {
-								SDL_FillRect(surface,
-									&pixels[y][x],
-									SDL_MapRGB(surface->format, 0x00, 0x00, 0x00)
-								);
-								std::cout << "pix" << std::endl;
-							} else {
-								SDL_FillRect(surface,
-									&pixels[y][x],
-									SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF)
-								);
-							}
-						}
-					}
-
-					SDL_UpdateWindowSurface(window);
-				}
-			}
-		}
-	}
+	// 			SDL_UpdateWindowSurface(window);
+	// 		}
+	// 	}
+	// }
 
 	delete sys;
 }

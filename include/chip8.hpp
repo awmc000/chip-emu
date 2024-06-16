@@ -47,6 +47,7 @@ public:
     void cycle();
     void reset();
     void load(byte * rom);
+    void dumpState();
 };
 
 #endif // CHIP8_HPP
