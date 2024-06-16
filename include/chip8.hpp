@@ -18,7 +18,7 @@ word combine(byte leftByte, byte rightByte);
 class Chip8 {
 private:
     // Display buffer: displayBuffer[x + (height * y)] = T / F
-    byte displayBuffer[CHIP8_SCREEN_HEIGHT * CHIP8_SCREEN_WIDTH];
+    byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
     // Blocks/containers
     byte ram[CHIP8_RAM_BYTES];
     byte variableRegisters[CHIP8_VARIABLE_REGISTERS];
@@ -30,8 +30,14 @@ private:
     // Bytes
     byte delayTimer;
     byte soundTimer;
-    // Private functions
+    // Private functions for executing instructions
     void execute(word);
+    void opClear();
+    void opJump(word NNN);
+    void opSetRegister(byte X, word NN);
+    void opAdd(byte X, word NN);
+    void opSetIndex(word NNN);
+    void opDraw(byte X, byte Y, byte N);
 public:
     bool draw;
     bool sound;
