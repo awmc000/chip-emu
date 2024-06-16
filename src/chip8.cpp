@@ -12,9 +12,6 @@ Chip8::Chip8() {
 }
 
 void Chip8::execute(word opcode) {
-    // std::cout << "EXECUTE CALLED" << std::endl;
-    // std::cout << "OP: " << std::hex << opcode;
-    // std::cout << std::endl;
 
     byte X = (opcode & 0x0F00) >> 8;    // nib 2
     byte Y = (opcode & 0x00F0) >> 4;    // nib 3
@@ -27,7 +24,7 @@ void Chip8::execute(word opcode) {
 			switch (opcode & 0x000F) {
                 // Clear
                 case 0x0000:
-                    std::cout << "CLEAR" << std::endl;
+                    std::cerr << "CLEAR" << std::endl;
                     opClear();
                     break;
                 // Return from subroutine
@@ -37,7 +34,7 @@ void Chip8::execute(word opcode) {
             break;
         case 0x1000:
             // Jump to NNN
-            std::cout << "JUMP" << std::endl;
+            std::cerr << "JUMP" << std::endl;
             opJump(NNN);
 			break;
         // case 0x2000:
@@ -49,11 +46,11 @@ void Chip8::execute(word opcode) {
         // case 0x5000:
 		// 	break;
         case 0x6000:
-            std::cout << "SET REG" << std::endl;
+            std::cerr << "SET REG" << std::endl;
             opSetRegister(X, NN);
 			break;
         case 0x7000:
-            std::cout << "ADD" << std::endl;
+            std::cerr << "ADD" << std::endl;
             opAdd(X, NN);
 			break;
         // case 0x8000:
@@ -61,7 +58,7 @@ void Chip8::execute(word opcode) {
         // case 0x9000:
 		// 	break;
         case 0xA000:
-            std::cout << "SET INDEX" << std::endl;
+            std::cerr << "SET INDEX" << std::endl;
             opSetIndex(NNN);
 			break;
         // case 0xB000:
@@ -69,7 +66,7 @@ void Chip8::execute(word opcode) {
         // case 0xC000:
 		// 	break;
         case 0xD000:
-            std::cout << "DRAW" << std::endl;
+            std::cerr << "DRAW" << std::endl;
             opDraw(X, Y, N);
 			break;
         // case 0xE000:
@@ -112,6 +109,7 @@ void Chip8::opSetIndex(word NNN)
 void Chip8::opDraw(byte X, byte Y, byte N)
 {
     byte xCoord = variableRegisters[X] % CHIP8_SCREEN_WIDTH;
+    byte startX = xCoord;
     byte yCoord = variableRegisters[Y] % CHIP8_SCREEN_HEIGHT;
 
     // Turn off draw flag
@@ -127,22 +125,22 @@ void Chip8::opDraw(byte X, byte Y, byte N)
         
         // For bits in the byte
         // == For pixels in the row of the sprite 
-        for (int x = 0; x < 8; x++) {
+        for (int x = 7; x >= 0; x--) {
             bool spriteBitSet = (spriteRow >> x) & 1;
-            bool bufferBitSet = (displayBuffer[y][x] & 1);
+            bool bufferBitSet = (displayBuffer[yCoord][xCoord] & 1);
 
 
             if (spriteBitSet && bufferBitSet) {
-                displayBuffer[y][x] = 0x00;
+                displayBuffer[yCoord][xCoord] = 0x00;
                 variableRegisters[0x0F] = 1;
-                std::cout << "Draw: Collision" << std::endl;
+                std::cerr << "Draw: Collision" << std::endl;
                 draw = true;
             } else if (spriteBitSet) {
-                displayBuffer[y][x] = 0x01;
-                std::cout << "Draw: Set a display buffer bit" << std::endl;
+                displayBuffer[yCoord][xCoord] = 0x01;
+                std::cerr << "Draw: Set a display buffer bit" << std::endl;
                 draw = true;
             } else {
-                std::cout << "Draw: nothing happened" << std::endl;
+                std::cerr << "Draw: nothing happened" << std::endl;
             }
 
             xCoord++;
@@ -151,13 +149,15 @@ void Chip8::opDraw(byte X, byte Y, byte N)
                 break;
             }
         }
-        xCoord -= 7;
+        xCoord = startX;
         yCoord++;
 
         if (yCoord == CHIP8_SCREEN_HEIGHT) {
             break;
         }
     }
+
+    dumpDisplay();
 }
 
 void Chip8::cycle() {
@@ -165,7 +165,7 @@ void Chip8::cycle() {
     word opcode = combine(ram[programCounter], ram[programCounter + 1]);
     programCounter += 2;
     
-    // std::cout << "cycle()" << std::endl;
+    // std::cerr << "cycle()" << std::endl;
 
     // Decode, Execute
     execute(opcode);
@@ -221,39 +221,42 @@ void Chip8::load(byte * rom)
 }
 
 void Chip8::dumpState() {
-    std::cout << "==== CHIP8 =====" << std::endl;
+    std::cerr << "==== CHIP8 =====" << std::endl;
     
-    std::cout << "PC: " << std::hex << (int) programCounter << std::endl;
-    std::cout << "SP: " << std::hex << (int) stackPointer << std::endl;
-    std::cout << "IR: " << std::hex << (int) indexRegister << std::endl;
+    std::cerr << "PC: " << std::hex << (int) programCounter << std::endl;
+    std::cerr << "SP: " << std::hex << (int) stackPointer << std::endl;
+    std::cerr << "IR: " << std::hex << (int) indexRegister << std::endl;
     
-    std::cout << "== REGISTERS ===" << std::endl;
+    std::cerr << "== REGISTERS ===" << std::endl;
     for (int i = 0; i < CHIP8_VARIABLE_REGISTERS; i++) {
-        std::cout << "V" << std::hex << i 
+        std::cerr << "V" << std::hex << i 
         << ": " << std::hex << (int) variableRegisters[i] << std::endl;
     }
-    std::cout << "=== TIMERS =====" << std::endl;
-    std::cout << "DT: " << std::hex << (int) delayTimer << std::endl;
-    std::cout << "ST: " << std::hex << (int) soundTimer << std::endl;
+    std::cerr << "=== TIMERS =====" << std::endl;
+    std::cerr << "DT: " << std::hex << (int) delayTimer << std::endl;
+    std::cerr << "ST: " << std::hex << (int) soundTimer << std::endl;
     
-    std::cout << "===== DISPLAY ======" << std::endl;
+    dumpDisplay();
+
+    std::cerr << "===== RAM ======" << std::endl;
+    for (int i = 0; i < CHIP8_RAM_BYTES; i++) {
+        if ( (i > 0) && (i % 4 == 0))
+            std::cerr << std::endl;
+        std::cerr << std::hex << i << ": " << std::hex << (int) ram[i] << "\t\t\t";
+    }
+}
+
+void Chip8::dumpDisplay() {
+    std::cerr << "===== DISPLAY ======" << std::endl;
     for (int y = 0; y < CHIP8_SCREEN_HEIGHT; y++) {
         for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
             
             if (displayBuffer[y][x]) {
-                std::cout << "#";
+                std::cerr << "#";
             } else {
-                std::cout << "_";
+                std::cerr << "_";
             }
         }
-        std::cout << "\n";
-    }
-
-
-    std::cout << "===== RAM ======" << std::endl;
-    for (int i = 0; i < CHIP8_RAM_BYTES; i++) {
-        if ( (i > 0) && (i % 4 == 0))
-            std::cout << std::endl;
-        std::cout << std::hex << i << ": " << std::hex << (int) ram[i] << "\t\t\t";
+        std::cerr << "\n";
     }
 }
