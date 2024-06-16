@@ -10,5 +10,5 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 include_directories(include)
 
-add_executable(chipemu src/main.cpp)
+add_executable(chipemu src/main.cpp src/chip8.cpp)
 target_link_libraries(chipemu ${SDL2_LIBRARIES})
