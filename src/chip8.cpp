@@ -1,5 +1,6 @@
 #include "chip8.hpp"
 #include <iostream>
+#include <iomanip>
 
 word combine(byte leftByte, byte rightByte) {
     return ((leftByte << 8) | rightByte);
@@ -11,6 +12,9 @@ Chip8::Chip8() {
 }
 
 void Chip8::execute(word opcode) {
+
+    std::cout << std::hex << opcode;
+    std::cout << std::endl;
 
     byte X = (opcode & 0x0F00) >> 8;    // nib 2
     byte Y = (opcode & 0x00F0) >> 4;    // nib 3
@@ -140,6 +144,8 @@ void Chip8::cycle() {
     word opcode = combine(ram[programCounter], ram[programCounter + 1]);
     programCounter += 2;
     
+    std::cout << "cycle()" << std::endl;
+
     // Decode, Execute
     execute(opcode);
     
@@ -161,6 +167,10 @@ void Chip8::reset() {
     // Clear display buffer
     opClear();
     
+    for (int i = 0; i < CHIP8_RAM_BYTES; i++) {
+        ram[i] = 0x00;
+    }
+
     // Clear registers
     for (int i = 0; i < CHIP8_VARIABLE_REGISTERS; i++) {
         variableRegisters[i] = 0x0000;
@@ -180,4 +190,12 @@ void Chip8::reset() {
 
     // Set PC to start
     programCounter = 0x200;
+}
+
+void Chip8::load(byte * rom)
+{
+    for (int i = 0; i < CHIP8_RAM_BYTES - 512; i++) {
+        ram[512 + i] = rom[i];
+        std::cout << "load: " << rom[i] << std::endl;
+    }
 }
