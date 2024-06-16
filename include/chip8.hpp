@@ -30,6 +30,8 @@ private:
     // Bytes
     byte delayTimer;
     byte soundTimer;
+    // Private functions
+    void execute(word);
 public:
     bool draw;
     bool sound;

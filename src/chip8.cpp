@@ -9,11 +9,40 @@ Chip8::Chip8() {
     reset();    
 }
 
+void Chip8::execute(word opcode) {
+
+    byte X = (opcode & 0x0F00) >> 8;    // nib 2
+    byte Y = (opcode & 0x00F0) >> 4;    // nib 3
+    byte N = X;                         // nib 2
+    word NN = opcode & 0x00FF;          // nib 3, 4
+    word NNN = opcode & 0x0FFF;         // nib 2, 3, 4
+
+    switch (0xF000 & opcode) {
+        case 0x0000:
+        case 0x1000:
+        case 0x2000:
+        case 0x3000:
+        case 0x4000:
+        case 0x5000:
+        case 0x6000:
+        case 0x7000:
+        case 0x8000:
+        case 0x9000:
+        case 0xA000:
+        case 0xB000:
+        case 0xC000:
+        case 0xD000:
+        case 0xE000:
+        case 0xF000:
+    }
+}
+
 void Chip8::cycle() {
     // Fetch
     word opcode = combine(ram[programCounter], ram[programCounter + 1]);
     programCounter += 2;
     // Decode, Execute
+    execute(opcode);
     // Update timers
     if (delayTimer > 0) {
         delayTimer--;
