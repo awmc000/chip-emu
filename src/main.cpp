@@ -75,16 +75,16 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 		while (SDL_PollEvent(&e)) {
 			// Check for quit event
 			if (e.type == SDL_QUIT) {
+				sys->dumpState();
 				running = false;
 			}
 
 			// Check time
 			auto elapsed = std::chrono::high_resolution_clock::now() - last;
 			auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-			last = std::chrono::high_resolution_clock::now();
 			
 			// If a 700th of a second has passed, run next cycle on Chip8
-			if (elapsedMicroseconds > 1429LL) {
+			if (elapsedMicroseconds > 1429) {
 
 				sys->cycle();
 
@@ -102,7 +102,6 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 			}
 		}
 	}
-
 	delete sys;
 }
 
