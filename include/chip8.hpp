@@ -52,6 +52,7 @@ private:
     void opSubRL(byte X, byte Y);
     void opLeftShift(byte X, byte Y);
     void opRightShift(byte X, byte Y);
+    void opRandom(byte X, byte NN);
 public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];

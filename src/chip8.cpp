@@ -1,6 +1,8 @@
 #include "chip8.hpp"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
+#include <ctime>
 
 word combine(byte leftByte, byte rightByte) {
     return ((leftByte << 8) | rightByte);
@@ -9,6 +11,10 @@ word combine(byte leftByte, byte rightByte) {
 Chip8::Chip8() {
     // Load user settings
     copyBeforeShifting = true;
+
+    // Seed random number generator
+    srand(time(nullptr));
+
     reset();    
 }
 
@@ -105,8 +111,9 @@ void Chip8::execute(word opcode) {
 			break;
         // case 0xB000:
 		// 	break;
-        // case 0xC000:
-		// 	break;
+        case 0xC000:
+            opRandom(X, NN);
+			break;
         case 0xD000:
             std::cerr << "DRAW" << std::endl;
             opDraw(X, Y, N);
@@ -293,6 +300,10 @@ void Chip8::opRightShift(byte X, byte Y) {
     }
     variableRegisters[X] = variableRegisters[X] >> 1;
 
+}
+
+void Chip8::opRandom(byte X, byte NN) {
+    variableRegisters[X] = rand() & NN;
 }
 
 void Chip8::cycle() {
