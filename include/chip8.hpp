@@ -39,6 +39,10 @@ private:
     void opDraw(byte X, byte Y, byte N);
     void opCall(word NNN);
     void opReturn();
+    void opSkipByteEqual(byte X, byte NN);
+    void opSkipByteUnequal(byte X, byte NN);
+    void opSkipRegEqual(byte X, byte Y);
+    void opSkipRegUnequal(byte X, byte Y);    
 public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];

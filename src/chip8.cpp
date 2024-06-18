@@ -43,12 +43,18 @@ void Chip8::execute(word opcode) {
             std::cerr << "CALL SUBROUTINE" << std::endl;
             opCall(NNN);
             break;
-        // case 0x3000:
-		// 	break;
-        // case 0x4000:
-		// 	break;
-        // case 0x5000:
-		// 	break;
+        case 0x3000:
+            std::cerr << "SKIP IF VX == XX" << std::endl;
+			opSkipByteEqual(X, NN);
+            break;
+        case 0x4000:
+            std::cerr << "SKIP IF VX != XX" << std::endl;
+            opSkipByteUnequal(X, NN);
+			break;
+        case 0x5000:
+            std::cerr << "SKIP IF VX == VY" << std::endl;
+            opSkipRegEqual(X, Y); 
+			break;
         case 0x6000:
             std::cerr << "SET REG" << std::endl;
             opSetRegister(X, NN);
@@ -59,8 +65,10 @@ void Chip8::execute(word opcode) {
 			break;
         // case 0x8000:
 		// 	break;
-        // case 0x9000:
-		// 	break;
+        case 0x9000:
+            std::cerr << "SKIP IF VX != VY" << std::endl;
+            opSkipRegUnequal(X, Y);
+			break;
         case 0xA000:
             std::cerr << "SET INDEX" << std::endl;
             opSetIndex(NNN);
@@ -171,6 +179,30 @@ void Chip8::opCall(word NNN) {
 
 void Chip8::opReturn() {
     programCounter = stack[--stackPointer];
+}
+
+void Chip8::opSkipByteEqual(byte X, byte NN) {
+    if (variableRegisters[X] == NN) {
+        programCounter += 2;
+    }
+}
+
+void Chip8::opSkipByteUnequal(byte X, byte NN) {
+    if (variableRegisters[X] != NN) {
+        programCounter += 2;
+    }
+}
+
+void Chip8::opSkipRegEqual(byte X, byte Y) {
+    if (variableRegisters[X] == variableRegisters[Y]) {
+        programCounter += 2;
+    }
+}
+
+void Chip8::opSkipRegUnequal(byte X, byte Y) {
+    if (variableRegisters[X] != variableRegisters[Y]) {
+        programCounter += 2;
+    }
 }
 
 void Chip8::cycle() {
