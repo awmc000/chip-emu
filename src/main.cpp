@@ -53,6 +53,119 @@ void drawFromChip(Chip8 *sys, SDL_Surface *surface, SDL_Rect pixels[32][64])
     }
 }
 
+void handleKeyDown(SDL_Event * e, Chip8 * sys) {
+	std::cerr << "Key down" << std::endl;
+	switch (e->key.keysym.sym) {
+		case SDLK_1:
+			sys->keyState[0x1] = 1;
+			break;
+		case SDLK_2:
+			sys->keyState[0x2] = 1;
+			break;
+		case SDLK_3:
+			sys->keyState[0x3] = 1;
+			break;
+		case SDLK_4:
+			sys->keyState[0xC] = 1;
+			break;
+
+		case SDLK_q:
+			sys->keyState[0x4] = 1;
+			break;
+		case SDLK_w:
+			sys->keyState[0x5] = 1;
+			break;
+		case SDLK_e:
+			sys->keyState[0x6] = 1;
+			break;
+		case SDLK_r:
+			sys->keyState[0xD] = 1;
+			break;
+
+		case SDLK_a:
+			sys->keyState[0x7] = 1;
+			break;
+		case SDLK_s:
+			sys->keyState[0x8] = 1;
+			break;
+		case SDLK_d:
+			sys->keyState[0x9] = 1;
+			break;
+		case SDLK_f:
+			sys->keyState[0xE] = 1;
+			break;
+
+		case SDLK_z:
+			sys->keyState[0xA] = 1;
+			break;
+		case SDLK_x:
+			sys->keyState[0x0] = 1;
+			break;
+		case SDLK_c:
+			sys->keyState[0xB] = 1;
+			break;
+		case SDLK_v:
+			sys->keyState[0xF] = 1;
+			break;
+	}
+}
+
+void handleKeyUp(SDL_Event * e, Chip8 * sys) {
+	switch (e->key.keysym.sym) {
+		case SDLK_1:
+			sys->keyState[0x1] = 0;
+			break;
+		case SDLK_2:
+			sys->keyState[0x2] = 0;
+			break;
+		case SDLK_3:
+			sys->keyState[0x3] = 0;
+			break;
+		case SDLK_4:
+			sys->keyState[0xC]= 0;
+			break;
+
+		case SDLK_q:
+			sys->keyState[0x4] = 0;
+			break;
+		case SDLK_w:
+			sys->keyState[0x5] = 0;
+			break;
+		case SDLK_e:
+			sys->keyState[0x6] = 0;
+			break;
+		case SDLK_r:
+			sys->keyState[0xD] = 0;
+			break;
+
+		case SDLK_a:
+			sys->keyState[0x7] = 0;
+			break;
+		case SDLK_s:
+			sys->keyState[0x8] = 0;
+			break;
+		case SDLK_d:
+			sys->keyState[0x9] = 0;
+			break;
+		case SDLK_f:
+			sys->keyState[0xE] = 0;
+			break;
+
+		case SDLK_z:
+			sys->keyState[0xA] = 0;
+			break;
+		case SDLK_x:
+			sys->keyState[0x0] = 0;
+			break;
+		case SDLK_c:
+			sys->keyState[0xB] = 0;
+			break;
+		case SDLK_v:
+			sys->keyState[0xF] = 0;
+			break;
+	}
+}
+
 void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) {
 	SDL_UpdateWindowSurface(window);
 
@@ -77,6 +190,16 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 			if (e.type == SDL_QUIT) {
 				sys->dumpState();
 				running = false;
+			}
+
+			if (e.type == SDL_KEYDOWN) {
+				handleKeyDown(&e, sys);
+				sys->dumpState();
+			}
+
+			if (e.type == SDL_KEYUP) {
+				handleKeyUp(&e, sys);
+				sys->dumpState();
 			}
 
 			// Check time

@@ -446,6 +446,11 @@ void Chip8::reset() {
         stack[i] = 0x0000;
     }
 
+    // Clear key buffer
+    for (int i = 0; i < 0xF; i++) {
+        keyState[i] = 0x00;
+    }
+
     // Clear SP, PC, I, DT, ST 
     stackPointer    = 0x00;
     programCounter  = 0x0000;
@@ -503,7 +508,13 @@ void Chip8::dumpState() {
     std::cerr << "=== TIMERS =====" << std::endl;
     std::cerr << "DT: " << std::hex << (int) delayTimer << std::endl;
     std::cerr << "ST: " << std::hex << (int) soundTimer << std::endl;
-    
+
+    std::cerr << "===== KEYS =====" << std::endl;
+    for (int i = 0; i < 0xF; i++) {
+        char key = keyState[i] + '0';
+        std::cerr << "KEY " << std::hex << i << ": " << std::hex << key << std::endl; 
+    }
+
     dumpDisplay();
 
     std::cerr << "===== RAM ======" << std::endl;
