@@ -42,12 +42,22 @@ private:
     void opSkipByteEqual(byte X, byte NN);
     void opSkipByteUnequal(byte X, byte NN);
     void opSkipRegEqual(byte X, byte Y);
-    void opSkipRegUnequal(byte X, byte Y);    
+    void opSkipRegUnequal(byte X, byte Y);
+    void opCopyRegister(byte X, byte Y);
+    void opOr(byte X, byte Y);
+    void opAnd(byte X, byte Y);
+    void opXor(byte X, byte Y);
+    void opAddReg(byte X, byte Y);
+    void opSubLR(byte X, byte Y);
+    void opSubRL(byte X, byte Y);
+    void opLeftShift(byte X, byte Y);
+    void opRightShift(byte X, byte Y);
 public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
     bool draw;
     bool sound;
+    bool copyBeforeShifting;
     byte keyState[16];
     Chip8();
     void cycle();

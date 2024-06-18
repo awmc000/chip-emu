@@ -7,7 +7,8 @@ word combine(byte leftByte, byte rightByte) {
 }
 
 Chip8::Chip8() {
-    // Load font
+    // Load user settings
+    copyBeforeShifting = true;
     reset();    
 }
 
@@ -63,8 +64,37 @@ void Chip8::execute(word opcode) {
             std::cerr << "ADD" << std::endl;
             opAdd(X, NN);
 			break;
-        // case 0x8000:
-		// 	break;
+        case 0x8000:
+            std::cerr << "LOGIC/ARITHMETIC" << std::endl;
+            switch (opcode & 0x000F) {
+                case 0x0000:
+                    opCopyRegister(X, Y);
+                    break;
+                case 0x0001:
+                    opOr(X, Y);
+                    break;
+                case 0x0002:
+                    opAnd(X, Y);
+                    break;
+                case 0x0003:
+                    opXor(X, Y);
+                    break;
+                case 0x0004:
+                    opAddReg(X, Y);
+                    break;
+                case 0x0005:
+                    opSubLR(X, Y);
+                    break;
+                case 0x0006:
+                    opLeftShift(X, Y);
+                case 0x0007:
+                    opSubRL(X, Y);
+                    break;
+                case 0x000E:
+                    opRightShift(X, Y);
+                    break;
+            }
+			break;
         case 0x9000:
             std::cerr << "SKIP IF VX != VY" << std::endl;
             opSkipRegUnequal(X, Y);
@@ -203,6 +233,66 @@ void Chip8::opSkipRegUnequal(byte X, byte Y) {
     if (variableRegisters[X] != variableRegisters[Y]) {
         programCounter += 2;
     }
+}
+
+void Chip8::opCopyRegister(byte X, byte Y) {
+    variableRegisters[X] = variableRegisters[Y];
+}
+
+void Chip8::opOr(byte X, byte Y) {
+    variableRegisters[X] = variableRegisters[X] | variableRegisters[Y];
+}
+
+void Chip8::opAnd(byte X, byte Y) {
+    variableRegisters[X] = variableRegisters[X] & variableRegisters[Y];
+}
+
+void Chip8::opXor(byte X, byte Y) {
+    variableRegisters[X] = variableRegisters[X] ^ variableRegisters[Y];
+}
+
+void Chip8::opAddReg(byte X, byte Y) {
+    if (((unsigned int) X + (unsigned int) Y) > 0xFF) {
+        variableRegisters[0xF] = 1;
+    } else {
+        variableRegisters[0xF] = 0;
+    }
+    variableRegisters[X] += variableRegisters[Y];
+}
+
+void Chip8::opSubLR(byte X, byte Y) {
+    if (Y < X) {
+        variableRegisters[0xF] = 1;
+    } else {
+        variableRegisters[0xF] = 0;
+    }
+
+    variableRegisters[X] -= variableRegisters[Y];
+}
+
+void Chip8::opSubRL(byte X, byte Y) {
+    if (X < Y) {
+        variableRegisters[0xF] = 1;
+    } else {
+        variableRegisters[0xF] = 0;
+    }
+
+    variableRegisters[X] = variableRegisters[Y] - variableRegisters[X];
+}
+
+void Chip8::opLeftShift(byte X, byte Y) {
+    if (copyBeforeShifting) {
+        variableRegisters[X] = variableRegisters[Y];
+    }
+    variableRegisters[X] = variableRegisters[X] << 1;
+}
+
+void Chip8::opRightShift(byte X, byte Y) {
+    if (copyBeforeShifting) {
+        variableRegisters[X] = variableRegisters[Y];
+    }
+    variableRegisters[X] = variableRegisters[X] >> 1;
+
 }
 
 void Chip8::cycle() {
