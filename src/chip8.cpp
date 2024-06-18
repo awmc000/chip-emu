@@ -92,12 +92,12 @@ void Chip8::execute(word opcode) {
                     opSubLR(X, Y);
                     break;
                 case 0x0006:
-                    opLeftShift(X, Y);
+                    opLeftShift(X, Y); // Failing Corax+
                 case 0x0007:
                     opSubRL(X, Y);
                     break;
                 case 0x000E:
-                    opRightShift(X, Y);
+                    opRightShift(X, Y); // Failing Corax+
                     break;
             }
 			break;
@@ -129,21 +129,33 @@ void Chip8::execute(word opcode) {
             }
 			break;
         case 0xF000:
-            switch (opcode & 0x000F) {
+            switch (opcode & 0x00FF) {
+                case 0x0029:
+                    opFontChar(X);
+                    break;
+                case 0x0033:
+                    opBinaryCodedDecimal(X); // Failing Corax+
+                    break;
                 case 0x0007:
                     opDelayToReg(X);
                     break;
-                case 0x0005:
+                case 0x0015:
                     opSetDelayTimer(X);
                     break;
-                case 0x0008:
+                case 0x0018:
                     opSetSoundTimer(X);
                     break;
                 case 0x000A:
-
+                    opGetKey(X);
                     break;
-                case 0x000E:
+                case 0x001E:
                     opAddRegToIndex(X);
+                    break;
+                case 0x0055:
+                    opRegistersToRam(X); // Failing Corax
+                    break;
+                case 0x0065:
+                    opRamToRegisters(X);
                     break;
             }
 			break;
@@ -382,6 +394,18 @@ void Chip8::opBinaryCodedDecimal(byte X) {
     ram[indexRegister] = X / 100;
     ram[indexRegister + 1] = (X / 10) % 10;
     ram[indexRegister + 2] = X % 10;
+}
+
+void Chip8::opRegistersToRam(byte X) {
+    for (int i = 0; i < CHIP8_VARIABLE_REGISTERS; i++) {
+        ram[indexRegister + i] = variableRegisters[i];   
+    }
+}
+
+void Chip8::opRamToRegisters(byte X) {
+    for (int i = 0; i < CHIP8_VARIABLE_REGISTERS; i++) {
+        variableRegisters[i] = ram[indexRegister + i];
+    }
 }
 
 void Chip8::cycle() {

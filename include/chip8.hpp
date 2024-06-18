@@ -62,6 +62,8 @@ private:
     void opGetKey(byte X);
     void opFontChar(byte X);
     void opBinaryCodedDecimal(byte X);
+    void opRegistersToRam(byte X);
+    void opRamToRegisters(byte X);
 public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
