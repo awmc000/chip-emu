@@ -29,6 +29,8 @@ void Chip8::execute(word opcode) {
                     break;
                 // Return from subroutine
                 case 0x000E:
+                    std::cerr << "RETURN" << std::endl;
+                    opReturn();
                     break;
             }
             break;
@@ -37,8 +39,10 @@ void Chip8::execute(word opcode) {
             std::cerr << "JUMP" << std::endl;
             opJump(NNN);
 			break;
-        // case 0x2000:
-		// 	break;
+        case 0x2000:
+            std::cerr << "CALL SUBROUTINE" << std::endl;
+            opCall(NNN);
+            break;
         // case 0x3000:
 		// 	break;
         // case 0x4000:
@@ -74,7 +78,8 @@ void Chip8::execute(word opcode) {
         // case 0xF000:
 		// 	break;
         default:
-            std::cerr << "Unsupported instruction" << opcode << std::endl;
+            std::cerr << "Unsupported instruction: " << std::hex << opcode << std::endl;
+            exit(1);
             break;
     }
 }
@@ -123,8 +128,7 @@ void Chip8::opDraw(byte X, byte Y, byte N)
         // Get the row of the sprite
         byte spriteRow = ram[indexRegister + y];
         
-        // For bits in the byte
-        // == For pixels in the row of the sprite 
+        // For bits in the byte, from MSB to LSB
         for (int x = 7; x >= 0; x--) {
             bool spriteBitSet = (spriteRow >> x) & 1;
             bool bufferBitSet = (displayBuffer[yCoord][xCoord] & 1);
@@ -160,13 +164,20 @@ void Chip8::opDraw(byte X, byte Y, byte N)
     dumpDisplay();
 }
 
+void Chip8::opCall(word NNN) {
+    stack[stackPointer++] = programCounter;
+	programCounter = NNN;
+}
+
+void Chip8::opReturn() {
+    programCounter = stack[--stackPointer];
+}
+
 void Chip8::cycle() {
     // Fetch
     word opcode = combine(ram[programCounter], ram[programCounter + 1]);
     programCounter += 2;
     
-    // std::cerr << "cycle()" << std::endl;
-
     // Decode, Execute
     execute(opcode);
     

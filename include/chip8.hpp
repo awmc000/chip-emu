@@ -37,6 +37,8 @@ private:
     void opAdd(byte X, word NN);
     void opSetIndex(word NNN);
     void opDraw(byte X, byte Y, byte N);
+    void opCall(word NNN);
+    void opReturn();
 public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
