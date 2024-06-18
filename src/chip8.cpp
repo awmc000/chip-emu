@@ -374,6 +374,16 @@ void Chip8::opGetKey(byte X) {
     programCounter -= 2;
 }
 
+void Chip8::opFontChar(byte X) {
+    indexRegister = ram[0x050 + (5 * X)];
+}
+
+void Chip8::opBinaryCodedDecimal(byte X) {
+    ram[indexRegister] = X / 100;
+    ram[indexRegister + 1] = (X / 10) % 10;
+    ram[indexRegister + 2] = X % 10;
+}
+
 void Chip8::cycle() {
     // Fetch
     word opcode = combine(ram[programCounter], ram[programCounter + 1]);
@@ -388,10 +398,7 @@ void Chip8::cycle() {
     }
     
     if (soundTimer > 0) {
-        if (soundTimer == 1) {
-            // Set sound flag
-            sound = true;
-        }
+        sound = true;
         soundTimer--;
     }
 }
