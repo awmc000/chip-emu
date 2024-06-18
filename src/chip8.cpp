@@ -118,10 +118,35 @@ void Chip8::execute(word opcode) {
             std::cerr << "DRAW" << std::endl;
             opDraw(X, Y, N);
 			break;
-        // case 0xE000:
-		// 	break;
-        // case 0xF000:
-		// 	break;
+        case 0xE000:
+            switch (opcode & 0x000F) {
+                case 0x000E:
+                    opSkipKeyDown(X);
+                    break;
+                case 0x0001:
+                    opSkipKeyNotDown(X);
+                    break;
+            }
+			break;
+        case 0xF000:
+            switch (opcode & 0x000F) {
+                case 0x0007:
+                    opDelayToReg(X);
+                    break;
+                case 0x0005:
+                    opSetDelayTimer(X);
+                    break;
+                case 0x0008:
+                    opSetSoundTimer(X);
+                    break;
+                case 0x000A:
+
+                    break;
+                case 0x000E:
+                    opAddRegToIndex(X);
+                    break;
+            }
+			break;
         default:
             std::cerr << "Unsupported instruction: " << std::hex << opcode << std::endl;
             exit(1);
@@ -304,6 +329,49 @@ void Chip8::opRightShift(byte X, byte Y) {
 
 void Chip8::opRandom(byte X, byte NN) {
     variableRegisters[X] = rand() & NN;
+}
+
+void Chip8::opSkipKeyDown(byte X) {
+    if (keyState[X] == 1) {
+        programCounter += 2;
+    }
+}
+
+void Chip8::opSkipKeyNotDown(byte X) {
+    if (keyState[X] == 0) {
+        programCounter += 2;
+    }
+}
+
+void Chip8::opDelayToReg(byte X) {
+    variableRegisters[X] = delayTimer;
+}
+
+void Chip8::opSetDelayTimer(byte X) {
+    delayTimer = X;
+}
+
+void Chip8::opSetSoundTimer(byte X) {
+    soundTimer = X;
+}
+
+void Chip8::opAddRegToIndex(byte X) {
+    if ((unsigned int) indexRegister + (unsigned int) X > 0x1000) {
+        variableRegisters[0xF] = 1;
+    }
+    indexRegister += X;
+}
+
+void Chip8::opGetKey(byte X) {
+    // If a key is pressed, put its value in VX
+    for (int i = 0x0; i < 0xF; i++) {
+        if (keyState[i] == 1) {
+            variableRegisters[X] = i;
+            return;
+        }
+    }
+    // If no key is pressed, decrement PC
+    programCounter -= 2;
 }
 
 void Chip8::cycle() {

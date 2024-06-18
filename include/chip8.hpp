@@ -53,6 +53,13 @@ private:
     void opLeftShift(byte X, byte Y);
     void opRightShift(byte X, byte Y);
     void opRandom(byte X, byte NN);
+    void opSkipKeyDown(byte X);
+    void opSkipKeyNotDown(byte X);
+    void opDelayToReg(byte X);
+    void opSetDelayTimer(byte X);
+    void opSetSoundTimer(byte X);
+    void opAddRegToIndex(byte X);
+    void opGetKey(byte X);
 public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
