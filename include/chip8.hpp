@@ -17,7 +17,8 @@ typedef unsigned char byte;
 word combine(byte leftByte, byte rightByte);
 
 class Chip8 {
-private:
+public:
+//private:
     // Blocks/containers
     byte ram[CHIP8_RAM_BYTES];
     byte variableRegisters[CHIP8_VARIABLE_REGISTERS];
@@ -64,7 +65,7 @@ private:
     void opBinaryCodedDecimal(byte X);
     void opRegistersToRam(byte X);
     void opRamToRegisters(byte X);
-public:
+//public:
     // Display buffer: displayBuffer[y][x] = T / F
     byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
     bool draw;
