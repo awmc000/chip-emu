@@ -2,7 +2,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-#include <ctime>
 
 word combine(byte leftByte, byte rightByte) {
     return ((leftByte << 8) | rightByte);
@@ -92,12 +91,13 @@ void Chip8::execute(word opcode) {
                     opSubLR(X, Y);
                     break;
                 case 0x0006:
-                    opLeftShift(X, Y); // Failing Corax+
+                    opRightShift(X, Y);
+                    break;
                 case 0x0007:
                     opSubRL(X, Y);
                     break;
                 case 0x000E:
-                    opRightShift(X, Y); // Failing Corax+
+                    opLeftShift(X, Y);
                     break;
             }
 			break;
@@ -296,7 +296,7 @@ void Chip8::opXor(byte X, byte Y) {
 }
 
 void Chip8::opAddReg(byte X, byte Y) {
-    if (((unsigned int) X + (unsigned int) Y) > 0xFF) {
+    if (((unsigned int) variableRegisters[X] + (unsigned int) variableRegisters[Y]) > 0xFF) {
         variableRegisters[0xF] = 1;
     } else {
         variableRegisters[0xF] = 0;
@@ -305,7 +305,7 @@ void Chip8::opAddReg(byte X, byte Y) {
 }
 
 void Chip8::opSubLR(byte X, byte Y) {
-    if (Y < X) {
+    if (variableRegisters[X] >= variableRegisters[Y]) {
         variableRegisters[0xF] = 1;
     } else {
         variableRegisters[0xF] = 0;
@@ -315,7 +315,7 @@ void Chip8::opSubLR(byte X, byte Y) {
 }
 
 void Chip8::opSubRL(byte X, byte Y) {
-    if (X < Y) {
+    if (variableRegisters[Y] >= variableRegisters[X]) {
         variableRegisters[0xF] = 1;
     } else {
         variableRegisters[0xF] = 0;
@@ -393,9 +393,9 @@ void Chip8::opFontChar(byte X) {
 }
 
 void Chip8::opBinaryCodedDecimal(byte X) {
-    ram[indexRegister] = X / 100;
-    ram[indexRegister + 1] = (X / 10) % 10;
-    ram[indexRegister + 2] = X % 10;
+    ram[indexRegister] = variableRegisters[X] / 100;
+    ram[indexRegister + 1] = (variableRegisters[X] / 10) % 10;
+    ram[indexRegister + 2] = variableRegisters[X] % 10;
 }
 
 void Chip8::opRegistersToRam(byte X) {
