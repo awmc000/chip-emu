@@ -31,8 +31,14 @@
 *.out
 *.app
 chipemu
+chiptest
+debug
 
 # CMake, VSCode
 CMakeCache.txt
 CMakeFiles/
 .vscode/
+Makefile
+
+# Test output
+chipdump.txt
