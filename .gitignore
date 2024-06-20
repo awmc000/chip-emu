@@ -33,5 +33,6 @@
 chipemu
 
 # CMake, VSCode
+CMakeCache.txt
 CMakeFiles/
 .vscode/
