@@ -10,7 +10,7 @@ word combine(byte leftByte, byte rightByte) {
 
 Chip8::Chip8() {
     // Load user settings
-    copyBeforeShifting = true;
+    copyBeforeShifting = false;
 
     // Seed random number generator
     srand(time(nullptr));
@@ -328,6 +328,7 @@ void Chip8::opLeftShift(byte X, byte Y) {
     if (copyBeforeShifting) {
         variableRegisters[X] = variableRegisters[Y];
     }
+    variableRegisters[0xF] = (variableRegisters[X] & 0x80) >> 7;
     variableRegisters[X] = variableRegisters[X] << 1;
 }
 
@@ -335,6 +336,7 @@ void Chip8::opRightShift(byte X, byte Y) {
     if (copyBeforeShifting) {
         variableRegisters[X] = variableRegisters[Y];
     }
+    variableRegisters[0xF] = variableRegisters[X] & 0x01;
     variableRegisters[X] = variableRegisters[X] >> 1;
 
 }
