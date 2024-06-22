@@ -216,6 +216,7 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 				// If the sound flag is set, play a sound then unset it
 				if (sys->sound) {
 					// TODO: Play sound
+					std::cerr << "[Ding! Sound not implemented yet.]" << std::endl;
 					sys->sound = false;
 				}
 				

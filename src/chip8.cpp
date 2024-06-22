@@ -19,6 +19,8 @@ Chip8::Chip8() {
 
 void Chip8::execute(word opcode) {
 
+    std::cerr << "Executing " << std::hex << opcode << "\n";
+
     byte X = (opcode & 0x0F00) >> 8;    // nib 2
     byte Y = (opcode & 0x00F0) >> 4;    // nib 3
     byte N = (opcode & 0x000F);         // nib 4
@@ -28,49 +30,36 @@ void Chip8::execute(word opcode) {
     switch (opcode & 0xF000) {
         case 0x0000:
 			switch (opcode & 0x000F) {
-                // Clear
                 case 0x0000:
-                    std::cerr << "CLEAR" << std::endl;
                     opClear();
                     break;
-                // Return from subroutine
                 case 0x000E:
-                    std::cerr << "RETURN" << std::endl;
                     opReturn();
                     break;
             }
             break;
         case 0x1000:
-            // Jump to NNN
-            std::cerr << "JUMP" << std::endl;
             opJump(NNN);
 			break;
         case 0x2000:
-            std::cerr << "CALL SUBROUTINE" << std::endl;
             opCall(NNN);
             break;
         case 0x3000:
-            std::cerr << "SKIP IF VX == XX" << std::endl;
 			opSkipByteEqual(X, NN);
             break;
         case 0x4000:
-            std::cerr << "SKIP IF VX != XX" << std::endl;
             opSkipByteUnequal(X, NN);
 			break;
         case 0x5000:
-            std::cerr << "SKIP IF VX == VY" << std::endl;
             opSkipRegEqual(X, Y); 
 			break;
         case 0x6000:
-            std::cerr << "SET REG" << std::endl;
             opSetRegister(X, NN);
 			break;
         case 0x7000:
-            std::cerr << "ADD" << std::endl;
             opAdd(X, NN);
 			break;
         case 0x8000:
-            std::cerr << "LOGIC/ARITHMETIC" << std::endl;
             switch (opcode & 0x000F) {
                 case 0x0000:
                     opCopyRegister(X, Y);
@@ -102,20 +91,15 @@ void Chip8::execute(word opcode) {
             }
 			break;
         case 0x9000:
-            std::cerr << "SKIP IF VX != VY" << std::endl;
             opSkipRegUnequal(X, Y);
 			break;
         case 0xA000:
-            std::cerr << "SET INDEX" << std::endl;
             opSetIndex(NNN);
 			break;
-        // case 0xB000:
-		// 	break;
         case 0xC000:
             opRandom(X, NN);
 			break;
         case 0xD000:
-            std::cerr << "DRAW" << std::endl;
             opDraw(X, Y, N);
 			break;
         case 0xE000:
