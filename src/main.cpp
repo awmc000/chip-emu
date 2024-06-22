@@ -5,9 +5,9 @@
 #include <chrono>
 #include <string>
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 320
-#define PIXEL_LENGTH 10
+#define SCREEN_WIDTH 	640
+#define SCREEN_HEIGHT 	320
+#define PIXEL_LENGTH 	10
 
 using std::ios_base;
 
@@ -189,42 +189,42 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
     configurePixels(pixels, pixLength);
 
     while (running) {
-		while (SDL_PollEvent(&e)) {
-			// Check for quit event
-			if (e.type == SDL_QUIT) {
-				sys->dumpState();
-				running = false;
-			}
 
-			if (e.type == SDL_KEYDOWN) {
-				handleKeyDown(&e, sys);
-			}
-
-			if (e.type == SDL_KEYUP) {
-				handleKeyUp(&e, sys);
-			}
-
-			// Check time
-			auto elapsed = std::chrono::high_resolution_clock::now() - last;
-			auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		SDL_PollEvent(&e);
 			
-			// If a 700th of a second has passed, run next cycle on Chip8
-			if (elapsedMicroseconds > 1429) {
+		if (e.type == SDL_QUIT) {
+			sys->dumpState();
+			running = false;
+		}
 
-				sys->cycle();
+		if (e.type == SDL_KEYDOWN) {
+			handleKeyDown(&e, sys);
+		}
 
-				// If the sound flag is set, play a sound then unset it
-				if (sys->sound) {
-					// TODO: Play sound
-					std::cerr << "[Ding! Sound not implemented yet.]" << std::endl;
-					sys->sound = false;
-				}
+		if (e.type == SDL_KEYUP) {
+			handleKeyUp(&e, sys);
+		}
+
+		// Check time
+		auto elapsed = std::chrono::high_resolution_clock::now() - last;
+		auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+			
+		// If a 700th of a second has passed, run next cycle on Chip8
+		if (elapsedMicroseconds > 1429) {
+
+			sys->cycle();
+
+			// If the sound flag is set, play a sound then unset it
+			if (sys->sound) {
+				// TODO: Play sound
+				std::cerr << "[Ding! Sound not implemented yet.]" << std::endl;
+				sys->sound = false;
+			}
 				
-				// If the draw flag is set, draw, then unset it
-                if (sys->draw) {
-					drawFromChip(sys, surface, pixels);
-	                SDL_UpdateWindowSurface(window);
-				}
+			// If the draw flag is set, draw, then unset it
+            if (sys->draw) {
+				drawFromChip(sys, surface, pixels);
+	            SDL_UpdateWindowSurface(window);
 			}
 		}
 	}
