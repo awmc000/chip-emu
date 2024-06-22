@@ -219,31 +219,25 @@ void Chip8::opDraw(byte X, byte Y, byte N)
             if (spriteBitSet && bufferBitSet) {
                 displayBuffer[yCoord][xCoord] = 0x00;
                 variableRegisters[0x0F] = 1;
-                std::cerr << "Draw: Collision" << std::endl;
                 draw = true;
             } else if (spriteBitSet) {
                 displayBuffer[yCoord][xCoord] = 0x01;
-                std::cerr << "Draw: Set a display buffer bit" << std::endl;
                 draw = true;
-            } else {
-                std::cerr << "Draw: nothing happened" << std::endl;
             }
 
             xCoord++;
     
-            if (xCoord == CHIP8_SCREEN_WIDTH) {
+            if (xCoord >= CHIP8_SCREEN_WIDTH) {
                 break;
             }
         }
         xCoord = startX;
         yCoord++;
 
-        if (yCoord == CHIP8_SCREEN_HEIGHT) {
+        if (yCoord >= CHIP8_SCREEN_HEIGHT) {
             break;
         }
     }
-
-    dumpDisplay();
 }
 
 void Chip8::opCall(word NNN) {
@@ -296,7 +290,7 @@ void Chip8::opXor(byte X, byte Y) {
 }
 
 void Chip8::opAddReg(byte X, byte Y) {
-    if (((unsigned int) variableRegisters[X] + (unsigned int) variableRegisters[Y]) > 0xFF) {
+    if (((int) variableRegisters[X] + (int) variableRegisters[Y]) > 0xFF) {
         variableRegisters[0xF] = 1;
     } else {
         variableRegisters[0xF] = 0;
@@ -370,7 +364,7 @@ void Chip8::opSetSoundTimer(byte X) {
 }
 
 void Chip8::opAddRegToIndex(byte X) {
-    if ((unsigned int) indexRegister + (unsigned int) X > 0x1000) {
+    if ((int) indexRegister + (int) X > 0x1000) {
         variableRegisters[0xF] = 1;
     }
     indexRegister += X;
@@ -426,6 +420,8 @@ void Chip8::cycle() {
     if (soundTimer > 0) {
         sound = true;
         soundTimer--;
+    } else {
+        sound = false;
     }
 }
 

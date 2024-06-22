@@ -47,7 +47,7 @@ void drawFromChip(Chip8 *sys, SDL_Surface *surface, SDL_Rect pixels[32][64])
             } else {
                 SDL_FillRect(surface,
                     &pixels[y][x],
-                    SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+                    SDL_MapRGB(surface->format, 0x00, 0x33, 0xFF));
             }
 		}
     }
@@ -107,6 +107,8 @@ void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 		case SDLK_v:
 			sys->keyState[0xF] = 1;
 			break;
+		default:
+			break;
 	}
 }
 
@@ -163,6 +165,8 @@ void handleKeyUp(SDL_Event * e, Chip8 * sys) {
 		case SDLK_v:
 			sys->keyState[0xF] = 0;
 			break;
+		default:
+			break;
 	}
 }
 
@@ -194,12 +198,10 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 
 			if (e.type == SDL_KEYDOWN) {
 				handleKeyDown(&e, sys);
-				sys->dumpState();
 			}
 
 			if (e.type == SDL_KEYUP) {
 				handleKeyUp(&e, sys);
-				sys->dumpState();
 			}
 
 			// Check time
