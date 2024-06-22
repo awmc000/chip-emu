@@ -377,13 +377,13 @@ void Chip8::opBinaryCodedDecimal(byte X) {
 }
 
 void Chip8::opRegistersToRam(byte X) {
-    for (int i = 0; i < CHIP8_VARIABLE_REGISTERS; i++) {
+    for (int i = 0; i <= X; i++) {
         ram[indexRegister + i] = variableRegisters[i];   
     }
 }
 
 void Chip8::opRamToRegisters(byte X) {
-    for (int i = 0; i < CHIP8_VARIABLE_REGISTERS; i++) {
+    for (int i = 0; i < X; i++) {
         variableRegisters[i] = ram[indexRegister + i];
     }
 }
@@ -513,7 +513,7 @@ void Chip8::dumpDisplay() {
         for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
             
             if (displayBuffer[y][x]) {
-                std::cerr << "#";
+                std::cerr << "█";
             } else {
                 std::cerr << "_";
             }

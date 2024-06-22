@@ -1,6 +1,17 @@
 #include "chip8.hpp"
 #include <catch2/catch_test_macros.hpp>
 
+TEST_CASE("Overflow registers by adding", "[Class Members]") {
+    Chip8 chip{};
+    chip.variableRegisters[0] = 0xFF;
+    REQUIRE(++chip.variableRegisters[0] == 0);
+}
+
+TEST_CASE("Overflow registers by subtracting", "[Class Members]") {
+    Chip8 chip{};
+    chip.variableRegisters[0] = 0x00;
+    REQUIRE(--chip.variableRegisters[0] == 0xFF);
+}
 
 TEST_CASE("Jump to an address", "[Opcodes]") {
     Chip8 chip{};
