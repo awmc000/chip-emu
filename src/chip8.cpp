@@ -351,7 +351,7 @@ void Chip8::opAddRegToIndex(byte X) {
     if ((int) indexRegister + (int) X > 0x1000) {
         variableRegisters[0xF] = 1;
     }
-    indexRegister += X;
+    indexRegister += variableRegisters[X];
 }
 
 void Chip8::opGetKey(byte X) {
@@ -383,7 +383,7 @@ void Chip8::opRegistersToRam(byte X) {
 }
 
 void Chip8::opRamToRegisters(byte X) {
-    for (int i = 0; i < X; i++) {
+    for (int i = 0; i <= X; i++) {
         variableRegisters[i] = ram[indexRegister + i];
     }
 }
