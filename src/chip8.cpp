@@ -118,7 +118,7 @@ void Chip8::execute(word opcode) {
                     opFontChar(X);
                     break;
                 case 0x0033:
-                    opBinaryCodedDecimal(X); // Failing Corax+
+                    opBinaryCodedDecimal(X);
                     break;
                 case 0x0007:
                     opDelayToReg(X);

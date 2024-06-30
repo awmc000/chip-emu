@@ -210,7 +210,8 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 		auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 			
 		// If a 700th of a second has passed, run next cycle on Chip8
-		if (elapsedMicroseconds > 1429) {
+		if (elapsedMicroseconds > 1429*2) {
+			last = std::chrono::high_resolution_clock::now();
 
 			sys->cycle();
 
@@ -225,6 +226,7 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
             if (sys->draw) {
 				drawFromChip(sys, surface, pixels);
 	            SDL_UpdateWindowSurface(window);
+				sys->dumpDisplay();
 			}
 		}
 	}
