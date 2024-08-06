@@ -18,7 +18,6 @@ word combine(byte leftByte, byte rightByte);
 
 class Chip8 {
 public:
-//private:
     
     // Blocks/containers
     
@@ -37,6 +36,18 @@ public:
     byte delayTimer;
     byte soundTimer;
         
+    // Display buffer: displayBuffer[y][x] = 0x01, on / 0x00, off
+    byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
+
+    bool draw;
+    bool sound;
+    bool copyBeforeShifting;
+    bool blockingForKey;
+
+    byte keyState[16];
+    byte lastKey;
+    bool lastKeyFromBlock;
+
     void execute(word opcode);
 
     // 00E0: Clear screen 
@@ -123,7 +134,7 @@ public:
     // FX1E: Add VX to I
     void opAddRegToIndex(byte X);
 
-    // FX0A: Block until a key is pressed
+    // FX0A: All execution stops until a key K is pressed, VX is set to K.
     void opGetKey(byte X);
 
     // FX29: Set I to the hex char in VX
@@ -137,13 +148,7 @@ public:
 
     // FX65: Load registers 0 to X from memory at I.
     void opRamToRegisters(byte X);
-//public:
-    // Display buffer: displayBuffer[y][x] = T / F
-    byte displayBuffer[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
-    bool draw;
-    bool sound;
-    bool copyBeforeShifting;
-    byte keyState[16];
+
     Chip8();
     void cycle();
     void reset();
