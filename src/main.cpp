@@ -5,11 +5,19 @@
 #include <chrono>
 #include <string>
 
-#define SCREEN_WIDTH 	640
-#define SCREEN_HEIGHT 	320
-#define PIXEL_LENGTH 	10
+#define SCREEN_WIDTH 		640
+#define SCREEN_HEIGHT 		320
+#define SIDEBAR_WIDTH 		200
+#define PIXEL_LENGTH 		10
+#define CYCLE_MICROSECONDS 	1429
 
 using std::ios_base;
+
+struct ChipFrontend {
+	bool active;
+};
+
+ChipFrontend fe {false};
 
 byte * loadFileBuf(const std::string &filename) {
 	byte * fileBuf = new byte[CHIP8_ROM_BYTES]; 
@@ -141,7 +149,16 @@ void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 			// The user pressed a key not on the Chip8 keypad
 			// So we don't track it for GETKEY purposes
 			sys->lastKeyFromBlock = false;
+			break;	
+	}
+	// Interpreter frontend controls
+	switch (e->key.keysym.sym) {
+		case SDLK_SPACE:
+			fe.active ^= 1;
 			break;
+		case SDLK_PERIOD:
+			sys->cycle();
+			break;			
 	}
 }
 
@@ -242,25 +259,24 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 		auto elapsed = std::chrono::high_resolution_clock::now() - last;
 		auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 			
-		// If a 700th of a second has passed, run next cycle on Chip8
-		if (elapsedMicroseconds > 1429) {
+		// If unpaused and a 700th of a second has passed, run next cycle on Chip8
+		if (fe.active && elapsedMicroseconds > CYCLE_MICROSECONDS) {
 			last = std::chrono::high_resolution_clock::now();
 
 			sys->cycle();
 
 			// If the sound flag is set, play a sound then unset it
 			if (sys->sound) {
-				// TODO: Play sound
 				std::cerr << "[Ding! Sound not implemented yet.]" << std::endl;
 				sys->sound = false;
 			}
-				
-			// If the draw flag is set, draw, then unset it
-            if (sys->draw) {
-				drawFromChip(sys, surface, pixels);
-	            SDL_UpdateWindowSurface(window);
-				sys->dumpDisplay();
-			}
+		}
+		
+		// If the draw flag is set, draw, then unset it
+        if (sys->draw) {
+			drawFromChip(sys, surface, pixels);
+	        SDL_UpdateWindowSurface(window);
+			sys->dumpDisplay();
 		}
 	}
 	delete sys;
