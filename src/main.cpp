@@ -55,59 +55,92 @@ void drawFromChip(Chip8 *sys, SDL_Surface *surface, SDL_Rect pixels[32][64])
 
 void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 	std::cerr << "Key down" << std::endl;
+
+	if (sys->blockingForKey)	
+		sys->lastKeyFromBlock = true;
+	
 	switch (e->key.keysym.sym) {
+		
+		// Row 1:  1234 -> 123C
+		
 		case SDLK_1:
 			sys->keyState[0x1] = 1;
+			sys->lastKey = 0x1;
+			std::cerr << "pressed 1" << std::endl;
 			break;
 		case SDLK_2:
 			sys->keyState[0x2] = 1;
+			sys->lastKey = 0x2;
 			break;
 		case SDLK_3:
 			sys->keyState[0x3] = 1;
+			sys->lastKey = 0x3;
 			break;
 		case SDLK_4:
 			sys->keyState[0xC] = 1;
+			sys->lastKey = 0xC;
 			break;
+
+		// Row 2: QWER -> 456D
 
 		case SDLK_q:
 			sys->keyState[0x4] = 1;
+			sys->lastKey = 0x4;
 			break;
 		case SDLK_w:
 			sys->keyState[0x5] = 1;
+			sys->lastKey = 0x5;
 			break;
 		case SDLK_e:
 			sys->keyState[0x6] = 1;
+			sys->lastKey = 0x6;
 			break;
 		case SDLK_r:
 			sys->keyState[0xD] = 1;
+			sys->lastKey = 0xD;
 			break;
+
+		// Row 3: ASDF -> 789E
 
 		case SDLK_a:
 			sys->keyState[0x7] = 1;
+			sys->lastKey = 0x7;
 			break;
 		case SDLK_s:
 			sys->keyState[0x8] = 1;
+			sys->lastKey = 0x8;
 			break;
 		case SDLK_d:
 			sys->keyState[0x9] = 1;
+			sys->lastKey = 0x9;
 			break;
 		case SDLK_f:
 			sys->keyState[0xE] = 1;
+			sys->lastKey = 0xE;
 			break;
+
+		// Row 4: ZXCV -> A0BF
 
 		case SDLK_z:
 			sys->keyState[0xA] = 1;
+			sys->lastKey = 0xA;
 			break;
 		case SDLK_x:
 			sys->keyState[0x0] = 1;
+			sys->lastKey = 0x0;
 			break;
 		case SDLK_c:
 			sys->keyState[0xB] = 1;
+			sys->lastKey = 0xB;
 			break;
 		case SDLK_v:
 			sys->keyState[0xF] = 1;
+			sys->lastKey = 0xF;
 			break;
 		default:
+			// The user pressed a key not on the Chip8 keypad
+			// So we don't track it for GETKEY purposes
+			sys->lastKeyFromBlock = false;
 			break;
 	}
 }
@@ -210,7 +243,7 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 		auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 			
 		// If a 700th of a second has passed, run next cycle on Chip8
-		if (elapsedMicroseconds > 1429*2) {
+		if (elapsedMicroseconds > 1429) {
 			last = std::chrono::high_resolution_clock::now();
 
 			sys->cycle();
