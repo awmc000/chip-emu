@@ -324,13 +324,23 @@ void Chip8::opRandom(byte X, byte NN) {
 }
 
 void Chip8::opSkipKeyDown(byte X) {
-    if (keyState[X] == 1) {
+    byte state = variableRegisters[X];
+    
+    if (state > 0xF)
+        exit(1);
+    
+    if (state == 1) {
         programCounter += 2;
     }
 }
 
 void Chip8::opSkipKeyNotDown(byte X) {
-    if (keyState[X] == 0) {
+    byte state = variableRegisters[X];
+    
+    if (state > 0xF)
+        exit(1);
+    
+    if (state == 0) {
         programCounter += 2;
     }
 }
@@ -355,14 +365,20 @@ void Chip8::opAddRegToIndex(byte X) {
 }
 
 void Chip8::opGetKey(byte X) {
-    // If a key is pressed, put its value in VX
-    for (int i = 0x0; i < 0xF; i++) {
-        if (keyState[i] == 1) {
-            variableRegisters[X] = i;
-            return;
-        }
+    
+    // If not blocking, zero out the key state and set to blocking
+    if (!blockingForKey) {
+        blockingForKey = true;
     }
-    // If no key is pressed, decrement PC
+
+    // If the last key was fetched during a block, get it & return
+    if (lastKeyFromBlock) {
+        variableRegisters[X] = lastKey;
+        blockingForKey = false;
+        return;
+    }
+
+    // No key yet: If no key is pressed, decrement PC
     programCounter -= 2;
 }
 
@@ -466,6 +482,10 @@ void Chip8::reset() {
 
     // Set PC to start
     programCounter = 0x200;
+
+    // Set switch for FX0A
+    blockingForKey = false;
+    lastKeyFromBlock = false;
 }
 
 void Chip8::load(byte * rom)
