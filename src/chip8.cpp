@@ -19,8 +19,6 @@ Chip8::Chip8() {
 
 void Chip8::execute(word opcode) {
 
-    std::cerr << "Executing " << std::hex << opcode << "\n";
-
     byte X = (opcode & 0x0F00) >> 8;    // nib 2
     byte Y = (opcode & 0x00F0) >> 4;    // nib 3
     byte N = (opcode & 0x000F);         // nib 4

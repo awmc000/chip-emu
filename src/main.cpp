@@ -69,7 +69,6 @@ void drawFromChip(Chip8 *sys, SDL_Surface *surface, SDL_Rect pixels[32][64])
 }
 
 void handleKeyDown(SDL_Event * e, Chip8 * sys) {
-	std::cerr << "Key down" << std::endl;
 
 	if (sys->blockingForKey)	
 		sys->lastKeyFromBlock = true;
@@ -81,7 +80,6 @@ void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 		case SDLK_1:
 			sys->keyState[0x1] = 1;
 			sys->lastKey = 0x1;
-			std::cerr << "pressed 1" << std::endl;
 			break;
 		case SDLK_2:
 			sys->keyState[0x2] = 1;
@@ -288,6 +286,13 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 	delete sys;
 }
 
+void printInstructions() {
+	std::cout << "Hit [Space] to pause/unpause.\n"
+	"The interpreter is paused when opened.\n"
+	"When paused, hit [.] to step through instructions one at a time.\n"
+	<< std::endl;
+}
+
 int main(int argc, char ** argv)
 {
 	if (argc < 2) {
@@ -331,6 +336,9 @@ int main(int argc, char ** argv)
 			);
 	
 			std::string fn = argv[1];
+	
+			printInstructions();
+	
 			emulate(window, surface, fn.c_str());
 		}
 
