@@ -324,7 +324,7 @@ void Chip8::opRandom(byte X, byte NN) {
 }
 
 void Chip8::opSkipKeyDown(byte X) {
-    byte state = variableRegisters[X];
+    byte state = keyState[variableRegisters[X]];
     
     if (state > 0xF)
         exit(1);
@@ -335,7 +335,7 @@ void Chip8::opSkipKeyDown(byte X) {
 }
 
 void Chip8::opSkipKeyNotDown(byte X) {
-    byte state = variableRegisters[X];
+    byte state = keyState[variableRegisters[X]];
     
     if (state > 0xF)
         exit(1);
