@@ -157,6 +157,7 @@ void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 			fe.active ^= 1;
 			break;
 		case SDLK_PERIOD:
+			std::cerr<< std::hex << sys->programCounter << std::endl;
 			sys->cycle();
 			break;			
 	}
@@ -243,7 +244,6 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 		SDL_PollEvent(&e);
 			
 		if (e.type == SDL_QUIT) {
-			sys->dumpState();
 			running = false;
 		}
 
@@ -276,7 +276,6 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
         if (sys->draw) {
 			drawFromChip(sys, surface, pixels);
 	        SDL_UpdateWindowSurface(window);
-			sys->dumpDisplay();
 		}
 	}
 	delete sys;
