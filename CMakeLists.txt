@@ -17,3 +17,4 @@ add_executable(chiptest src/chip8.cpp test/test.cpp)
 target_link_libraries(chiptest PRIVATE Catch2::Catch2WithMain)
 
 target_link_libraries(chipemu ${SDL2_LIBRARIES})
+target_link_libraries(chipemu -lSDL2_mixer)

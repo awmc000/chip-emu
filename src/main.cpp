@@ -1,5 +1,6 @@
 #include "chip8.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -10,14 +11,20 @@
 #define SIDEBAR_WIDTH 		200
 #define PIXEL_LENGTH 		10
 #define CYCLE_MICROSECONDS 	1429
+#define OFF_COLOUR			0x00, 0x00, 0x00
+#define ON_COLOUR			0x00, 0xFF, 0x33
 
 using std::ios_base;
 
 struct ChipFrontend {
 	bool active;
+	Mix_Chunk * beep_sfx;
 };
 
-ChipFrontend fe {false};
+ChipFrontend fe {
+	false,
+	nullptr,
+};
 
 byte * loadFileBuf(const std::string &filename) {
 	byte * fileBuf = new byte[CHIP8_ROM_BYTES]; 
@@ -51,11 +58,11 @@ void drawFromChip(Chip8 *sys, SDL_Surface *surface, SDL_Rect pixels[32][64])
             if (draw == 0) {
                 SDL_FillRect(surface,
                     &pixels[y][x],
-                    SDL_MapRGB(surface->format, 0x00, 0x00, 0x00));
+                    SDL_MapRGB(surface->format, OFF_COLOUR));
             } else {
                 SDL_FillRect(surface,
                     &pixels[y][x],
-                    SDL_MapRGB(surface->format, 0x00, 0x33, 0xFF));
+                    SDL_MapRGB(surface->format, ON_COLOUR));
             }
 		}
     }
@@ -267,7 +274,7 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 
 			// If the sound flag is set, play a sound then unset it
 			if (sys->sound) {
-				std::cerr << "[Ding! Sound not implemented yet.]" << std::endl;
+				Mix_PlayChannel(-1, fe.beep_sfx, 0);
 				sys->sound = false;
 			}
 		}
@@ -291,9 +298,22 @@ int main(int argc, char ** argv)
     SDL_Window * window = nullptr;
 	SDL_Surface * surface = nullptr;
 	
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		std::cout << "SDL init failed: " << SDL_GetError() << std::endl;
 	} else {
+		
+		if (Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ) {
+            printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+			exit(1);
+        }
+		
+		fe.beep_sfx = Mix_LoadWAV("beep.wav");
+
+		if (fe.beep_sfx == nullptr) {
+			printf("Failed to load beep wav! SDL_mixer error: %s\n", Mix_GetError());
+			exit(1);
+		}
+
 		window = SDL_CreateWindow("chip-emu",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
