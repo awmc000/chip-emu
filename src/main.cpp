@@ -12,7 +12,7 @@
 #define PIXEL_LENGTH 		10
 #define CYCLE_MICROSECONDS 	1429
 #define OFF_COLOUR			0x00, 0x00, 0x00
-#define ON_COLOUR			0x00, 0xFF, 0x33
+#define ON_COLOUR			0x00, 0xFF, 0x55
 
 using std::ios_base;
 
