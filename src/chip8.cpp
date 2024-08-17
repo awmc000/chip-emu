@@ -26,51 +26,21 @@ void Chip8::execute(word opcode) {
     word NNN = opcode & 0x0FFF;         // nib 2, 3, 4
 
     switch (opcode & 0xF000) {
-        case 0x0000:
-            executeClearReturn(opcode);
-            break;
-        case 0x1000:
-            opJump(NNN);
-			break;
-        case 0x2000:
-            opCall(NNN);
-            break;
-        case 0x3000:
-			opSkipByteEqual(X, NN);
-            break;
-        case 0x4000:
-            opSkipByteUnequal(X, NN);
-			break;
-        case 0x5000:
-            opSkipRegEqual(X, Y); 
-			break;
-        case 0x6000:
-            opSetRegister(X, NN);
-			break;
-        case 0x7000:
-            opAdd(X, NN);
-			break;
-        case 0x8000:
-            executeLogicMathInstruction(opcode, X, Y);
-            break;
-        case 0x9000:
-            opSkipRegUnequal(X, Y);
-			break;
-        case 0xA000:
-            opSetIndex(NNN);
-			break;
-        case 0xC000:
-            opRandom(X, NN);
-			break;
-        case 0xD000:
-            opDraw(X, Y, N);
-			break;
-        case 0xE000:
-            executeKeyInstruction(opcode, X);
-            break;
-        case 0xF000:
-            executeMiscInstruction(opcode, X);
-            break;
+        case 0x0000:    executeClearReturn(opcode);                 break;
+        case 0x1000:    opJump(NNN);                                break;
+        case 0x2000:    opCall(NNN);                                break;
+        case 0x3000:    opSkipByteEqual(X, NN);                     break;
+        case 0x4000:    opSkipByteUnequal(X, NN);                   break;
+        case 0x5000:    opSkipRegEqual(X, Y);                       break;
+        case 0x6000:    opSetRegister(X, NN);                       break;
+        case 0x7000:    opAdd(X, NN);                               break;
+        case 0x8000:    executeLogicMathInstruction(opcode, X, Y);  break;
+        case 0x9000:    opSkipRegUnequal(X, Y);                     break;
+        case 0xA000:    opSetIndex(NNN);                            break;
+        case 0xC000:    opRandom(X, NN);                            break;
+        case 0xD000:    opDraw(X, Y, N);                            break;
+        case 0xE000:    executeKeyInstruction(opcode, X);           break;
+        case 0xF000:    executeMiscInstruction(opcode, X);          break;
         default:
             std::cerr << "Unsupported instruction: " << std::hex << opcode << std::endl;
             exit(1);
@@ -80,93 +50,46 @@ void Chip8::execute(word opcode) {
 
 void Chip8::executeKeyInstruction(word opcode, byte X)
 {
-    switch (opcode & 0x000F)
-    {
-    case 0x000E:
-        opSkipKeyDown(X);
-        break;
-    case 0x0001:
-        opSkipKeyNotDown(X);
-        break;
+    switch (opcode & 0x000F) {
+        case 0x000E:    opSkipKeyDown(X);       break;
+        case 0x0001:    opSkipKeyNotDown(X);    break;
     }
 }
 
 void Chip8::executeMiscInstruction(word opcode, byte X)
 {
-    switch (opcode & 0x00FF)
-    {
-    case 0x0029:
-        opFontChar(X);
-        break;
-    case 0x0033:
-        opBinaryCodedDecimal(X);
-        break;
-    case 0x0007:
-        opDelayToReg(X);
-        break;
-    case 0x0015:
-        opSetDelayTimer(X);
-        break;
-    case 0x0018:
-        opSetSoundTimer(X);
-        break;
-    case 0x000A:
-        opGetKey(X);
-        break;
-    case 0x001E:
-        opAddRegToIndex(X);
-        break;
-    case 0x0055:
-        opRegistersToRam(X);
-        break;
-    case 0x0065:
-        opRamToRegisters(X);
-        break;
+    switch (opcode & 0x00FF) {
+        case 0x0029:    opFontChar(X);              break;
+        case 0x0033:    opBinaryCodedDecimal(X);    break;
+        case 0x0007:    opDelayToReg(X);            break;
+        case 0x0015:    opSetDelayTimer(X);         break;
+        case 0x0018:    opSetSoundTimer(X);         break;
+        case 0x000A:    opGetKey(X);                break;
+        case 0x001E:    opAddRegToIndex(X);         break;
+        case 0x0055:    opRegistersToRam(X);        break;
+        case 0x0065:    opRamToRegisters(X);        break;
     }
 }
 
 void Chip8::executeClearReturn(word opcode)
 {
-    switch (opcode & 0x000F)
-    {
-    case 0x0000:
-        opClear();
-        break;
-    case 0x000E:
-        opReturn();
-        break;
+    switch (opcode & 0x000F) {
+        case 0x0000:    opClear();      break;
+        case 0x000E:    opReturn();     break;
     }
 }
 
 void Chip8::executeLogicMathInstruction(word opcode, byte X, byte Y) {
     switch (opcode & 0x000F) {
-        case 0x0000:
-            opCopyRegister(X, Y);
-            break;
-        case 0x0001:
-            opOr(X, Y);
-            break;
-        case 0x0002:
-            opAnd(X, Y);
-            break;
-        case 0x0003:
-            opXor(X, Y);
-            break;
-        case 0x0004:
-            opAddReg(X, Y);
-            break;
-        case 0x0005:
-            opSubLR(X, Y);
-            break;
-        case 0x0006:
-            opRightShift(X, Y);
-            break;
-        case 0x0007:
-            opSubRL(X, Y);
-            break;
-        case 0x000E:
-            opLeftShift(X, Y);
-            break;
+        case 0x0000:    opCopyRegister(X, Y);   break;
+        case 0x0001:    opOr(X, Y);             break;
+        case 0x0002:    opAnd(X, Y);            break;
+        case 0x0003:    opXor(X, Y);            break;
+        case 0x0004:    opAddReg(X, Y);         break;
+        case 0x0005:    opSubLR(X, Y);          break;
+        case 0x0006:    opRightShift(X, Y);     break;
+        case 0x0007:    opSubRL(X, Y);          break;
+        case 0x000E:    opLeftShift(X, Y);      break;
     }
 }
 
