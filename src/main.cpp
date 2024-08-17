@@ -19,6 +19,7 @@ using std::ios_base;
 struct ChipFrontend {
 	bool active;
 	Mix_Chunk * beep_sfx;
+	SDL_Rect pixels[32][64];
 };
 
 ChipFrontend fe {
@@ -27,7 +28,7 @@ ChipFrontend fe {
 };
 
 byte * loadFileBuf(const std::string &filename) {
-	byte * fileBuf = new byte[CHIP8_ROM_BYTES]; 
+	byte * fileBuf = new byte[CHIP8_ROM_BYTES];
 	std::ifstream in(filename, ios_base::in | ios_base::binary);
 
 	do {
@@ -68,15 +69,24 @@ void drawFromChip(Chip8 *sys, SDL_Surface *surface, SDL_Rect pixels[32][64])
     }
 }
 
+
+void printCurrentInstruction(Chip8 *sys)
+{
+    byte instr_top = sys->ram[sys->programCounter];
+    byte instr_bot = sys->ram[sys->programCounter + 1];
+    word instr = (instr_top << 8) | instr_bot;
+    std::cerr << std::hex << instr << std::endl;
+}
+
 void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 
-	if (sys->blockingForKey)	
+	if (sys->blockingForKey)
 		sys->lastKeyFromBlock = true;
-	
+
 	switch (e->key.keysym.sym) {
-		
+
 		// Row 1:  1234 -> 123C
-		
+
 		case SDLK_1:
 			sys->keyState[0x1] = 1;
 			sys->lastKey = 0x1;
@@ -154,19 +164,24 @@ void handleKeyDown(SDL_Event * e, Chip8 * sys) {
 			// The user pressed a key not on the Chip8 keypad
 			// So we don't track it for GETKEY purposes
 			sys->lastKeyFromBlock = false;
-			break;	
+			break;
 	}
+	
 	// Interpreter frontend controls
 	switch (e->key.keysym.sym) {
 		case SDLK_SPACE:
 			fe.active ^= 1;
 			break;
 		case SDLK_PERIOD:
-			std::cerr<< std::hex << sys->programCounter << std::endl;
+            printCurrentInstruction(sys);
 			sys->cycle();
-			break;			
+			break;
+		case SDLK_ESCAPE:
+			exit(0);
+			break;
 	}
 }
+
 
 void handleKeyUp(SDL_Event * e, Chip8 * sys) {
 	switch (e->key.keysym.sym) {
@@ -235,19 +250,17 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 	auto now = last;
 
 	Chip8 * sys = new Chip8();
-	SDL_Rect pixels[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
-
 	sys->load(loadFileBuf(filename));
 
 	int pixLength = 10;
-	
+
 	// Set up pixel rectangles: 64x32 10x10px rectangles.
-    configurePixels(pixels, pixLength);
+    configurePixels(fe.pixels, pixLength);
 
     while (running) {
 
 		SDL_PollEvent(&e);
-			
+
 		if (e.type == SDL_QUIT) {
 			running = false;
 		}
@@ -263,7 +276,7 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 		// Check time
 		auto elapsed = std::chrono::high_resolution_clock::now() - last;
 		auto elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-			
+
 		// If unpaused and a 700th of a second has passed, run next cycle on Chip8
 		if (fe.active && elapsedMicroseconds > CYCLE_MICROSECONDS) {
 			last = std::chrono::high_resolution_clock::now();
@@ -276,10 +289,10 @@ void emulate(SDL_Window * window, SDL_Surface * surface, const char * filename) 
 				sys->sound = false;
 			}
 		}
-		
+
 		// If the draw flag is set, draw, then unset it
         if (sys->draw) {
-			drawFromChip(sys, surface, pixels);
+			drawFromChip(sys, surface, fe.pixels);
 	        SDL_UpdateWindowSurface(window);
 		}
 	}
@@ -290,7 +303,17 @@ void printInstructions() {
 	std::cout << "Hit [Space] to pause/unpause.\n"
 	"The interpreter is paused when opened.\n"
 	"When paused, hit [.] to step through instructions one at a time.\n"
+	"Hit [Escape] at any time to close the interpreter.\n"
 	<< std::endl;
+}
+
+void setupAudio()
+{
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+    {
+        printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+        exit(1);
+    }
 }
 
 int main(int argc, char ** argv)
@@ -302,47 +325,46 @@ int main(int argc, char ** argv)
 
     SDL_Window * window = nullptr;
 	SDL_Surface * surface = nullptr;
-	
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		std::cout << "SDL init failed: " << SDL_GetError() << std::endl;
-	} else {
-		
-		if (Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ) {
-            printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
-			exit(1);
-        }
-		
-		fe.beep_sfx = Mix_LoadWAV("beep.wav");
-
-		if (fe.beep_sfx == nullptr) {
-			printf("Failed to load beep wav! SDL_mixer error: %s\n", Mix_GetError());
-			exit(1);
-		}
-
-		window = SDL_CreateWindow("chip-emu",
-				SDL_WINDOWPOS_UNDEFINED,
-				SDL_WINDOWPOS_UNDEFINED,
-				SCREEN_WIDTH,
-				SCREEN_HEIGHT,
-				SDL_WINDOW_SHOWN);
-	
-		if (window == nullptr) {
-			std::cout << "Window creation failed:" << SDL_GetError() << std::endl;	
-		} else {
-			surface = SDL_GetWindowSurface(window);
-			SDL_FillRect(surface,
-				NULL,
-				SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF)
-			);
-	
-			std::string fn = argv[1];
-	
-			printInstructions();
-	
-			emulate(window, surface, fn.c_str());
-		}
-
+		exit(1);
 	}
+
+    setupAudio();
+
+    fe.beep_sfx = Mix_LoadWAV("beep.wav");
+
+	if (fe.beep_sfx == nullptr) {
+		printf("Failed to load beep wav! SDL_mixer error: %s\n", Mix_GetError());
+		exit(1);
+	}
+
+	window = SDL_CreateWindow("chip-emu",
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED,
+			SCREEN_WIDTH,
+			SCREEN_HEIGHT,
+			SDL_WINDOW_SHOWN);
+
+	if (window == nullptr) {
+		std::cout << "Window creation failed:" << SDL_GetError() << std::endl;
+		exit(1);
+	} 
+
+	surface = SDL_GetWindowSurface(window);
+
+	SDL_FillRect(surface,
+		NULL,
+		SDL_MapRGB(surface->format, OFF_COLOUR)
+	);
+
+	std::string fn = argv[1];
+
+	printInstructions();
+
+	emulate(window, surface, fn.c_str());
+
 	SDL_DestroyWindow(window);
 
 	SDL_Quit();

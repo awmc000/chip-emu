@@ -50,7 +50,9 @@ public:
 
     void execute(word opcode);
 
-    // 00E0: Clear screen 
+    void executeLogicMathInstruction(word opcode, byte X, byte Y);
+
+    // 00E0: Clear screen
     void opClear();
 
     // 1NNN: Jump

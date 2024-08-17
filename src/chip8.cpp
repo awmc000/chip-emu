@@ -58,36 +58,8 @@ void Chip8::execute(word opcode) {
             opAdd(X, NN);
 			break;
         case 0x8000:
-            switch (opcode & 0x000F) {
-                case 0x0000:
-                    opCopyRegister(X, Y);
-                    break;
-                case 0x0001:
-                    opOr(X, Y);
-                    break;
-                case 0x0002:
-                    opAnd(X, Y);
-                    break;
-                case 0x0003:
-                    opXor(X, Y);
-                    break;
-                case 0x0004:
-                    opAddReg(X, Y);
-                    break;
-                case 0x0005:
-                    opSubLR(X, Y);
-                    break;
-                case 0x0006:
-                    opRightShift(X, Y);
-                    break;
-                case 0x0007:
-                    opSubRL(X, Y);
-                    break;
-                case 0x000E:
-                    opLeftShift(X, Y);
-                    break;
-            }
-			break;
+            executeLogicMathInstruction(opcode, X, Y);
+            break;
         case 0x9000:
             opSkipRegUnequal(X, Y);
 			break;
@@ -134,7 +106,7 @@ void Chip8::execute(word opcode) {
                     opAddRegToIndex(X);
                     break;
                 case 0x0055:
-                    opRegistersToRam(X); // Failing Corax
+                    opRegistersToRam(X);
                     break;
                 case 0x0065:
                     opRamToRegisters(X);
@@ -144,6 +116,38 @@ void Chip8::execute(word opcode) {
         default:
             std::cerr << "Unsupported instruction: " << std::hex << opcode << std::endl;
             exit(1);
+            break;
+    }
+}
+
+void Chip8::executeLogicMathInstruction(word opcode, byte X, byte Y) {
+    switch (opcode & 0x000F) {
+        case 0x0000:
+            opCopyRegister(X, Y);
+            break;
+        case 0x0001:
+            opOr(X, Y);
+            break;
+        case 0x0002:
+            opAnd(X, Y);
+            break;
+        case 0x0003:
+            opXor(X, Y);
+            break;
+        case 0x0004:
+            opAddReg(X, Y);
+            break;
+        case 0x0005:
+            opSubLR(X, Y);
+            break;
+        case 0x0006:
+            opRightShift(X, Y);
+            break;
+        case 0x0007:
+            opSubRL(X, Y);
+            break;
+        case 0x000E:
+            opLeftShift(X, Y);
             break;
     }
 }
@@ -369,8 +373,8 @@ void Chip8::opGetKey(byte X) {
         blockingForKey = true;
     }
 
-    // If the last key was fetched during a block, get it & return
-    if (lastKeyFromBlock) {
+    // If the last key was fetched during a block and has been released, get it & return
+    if (lastKeyFromBlock && (keyState[lastKey] == 0)) {
         variableRegisters[X] = lastKey;
         blockingForKey = false;
         return;
