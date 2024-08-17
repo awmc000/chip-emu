@@ -50,6 +50,12 @@ public:
 
     void execute(word opcode);
 
+    void executeKeyInstruction(word opcode, byte X);
+
+    void executeMiscInstruction(word opcode, byte X);
+
+    void executeClearReturn(word opcode);
+
     void executeLogicMathInstruction(word opcode, byte X, byte Y);
 
     // 00E0: Clear screen

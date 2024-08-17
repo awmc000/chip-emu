@@ -27,14 +27,7 @@ void Chip8::execute(word opcode) {
 
     switch (opcode & 0xF000) {
         case 0x0000:
-			switch (opcode & 0x000F) {
-                case 0x0000:
-                    opClear();
-                    break;
-                case 0x000E:
-                    opReturn();
-                    break;
-            }
+            executeClearReturn(opcode);
             break;
         case 0x1000:
             opJump(NNN);
@@ -73,50 +66,75 @@ void Chip8::execute(word opcode) {
             opDraw(X, Y, N);
 			break;
         case 0xE000:
-            switch (opcode & 0x000F) {
-                case 0x000E:
-                    opSkipKeyDown(X);
-                    break;
-                case 0x0001:
-                    opSkipKeyNotDown(X);
-                    break;
-            }
-			break;
+            executeKeyInstruction(opcode, X);
+            break;
         case 0xF000:
-            switch (opcode & 0x00FF) {
-                case 0x0029:
-                    opFontChar(X);
-                    break;
-                case 0x0033:
-                    opBinaryCodedDecimal(X);
-                    break;
-                case 0x0007:
-                    opDelayToReg(X);
-                    break;
-                case 0x0015:
-                    opSetDelayTimer(X);
-                    break;
-                case 0x0018:
-                    opSetSoundTimer(X);
-                    break;
-                case 0x000A:
-                    opGetKey(X);
-                    break;
-                case 0x001E:
-                    opAddRegToIndex(X);
-                    break;
-                case 0x0055:
-                    opRegistersToRam(X);
-                    break;
-                case 0x0065:
-                    opRamToRegisters(X);
-                    break;
-            }
-			break;
+            executeMiscInstruction(opcode, X);
+            break;
         default:
             std::cerr << "Unsupported instruction: " << std::hex << opcode << std::endl;
             exit(1);
             break;
+    }
+}
+
+void Chip8::executeKeyInstruction(word opcode, byte X)
+{
+    switch (opcode & 0x000F)
+    {
+    case 0x000E:
+        opSkipKeyDown(X);
+        break;
+    case 0x0001:
+        opSkipKeyNotDown(X);
+        break;
+    }
+}
+
+void Chip8::executeMiscInstruction(word opcode, byte X)
+{
+    switch (opcode & 0x00FF)
+    {
+    case 0x0029:
+        opFontChar(X);
+        break;
+    case 0x0033:
+        opBinaryCodedDecimal(X);
+        break;
+    case 0x0007:
+        opDelayToReg(X);
+        break;
+    case 0x0015:
+        opSetDelayTimer(X);
+        break;
+    case 0x0018:
+        opSetSoundTimer(X);
+        break;
+    case 0x000A:
+        opGetKey(X);
+        break;
+    case 0x001E:
+        opAddRegToIndex(X);
+        break;
+    case 0x0055:
+        opRegistersToRam(X);
+        break;
+    case 0x0065:
+        opRamToRegisters(X);
+        break;
+    }
+}
+
+void Chip8::executeClearReturn(word opcode)
+{
+    switch (opcode & 0x000F)
+    {
+    case 0x0000:
+        opClear();
+        break;
+    case 0x000E:
+        opReturn();
+        break;
     }
 }
 
